@@ -1,8 +1,9 @@
 #include <functional> 
 
 #include "Heap.hpp"
+#include "Testing.h"
 
-int main()
+TEST(TestHeap, Test1)
 {
   Heap<int, std::less<int> > heap;
   heap.Insert(1492);
