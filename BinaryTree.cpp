@@ -76,6 +76,75 @@ void TreePostOrder(Tree* tree, void (*func)(void*))
   (*func)(tree->data);
 }
 
+Tree* TreeMin(Tree* tree)
+{
+  if ( tree && tree->left )
+    return TreeMin(tree->left);
+  else
+    return tree;
+}
+
+Tree* TreeMax(Tree* tree)
+{
+  if ( tree && tree->right )
+    return TreeMax(tree->right);
+  else
+    return tree;
+}
+
+Tree* TreeSearch(Tree* tree, void* element, int (*comp)(const void*, const void*))
+{
+  int res = (*comp)(element, tree->data); 
+  if ( res < 0 )
+    return tree->left ? TreeSearch(tree->left, element, comp) : NULL;
+  else if ( res > 0 )
+    return tree->right ? TreeSearch(tree->right, element, comp) : NULL;
+  else
+    return tree;
+}
+
+static void TreeDoDelete(Tree* toDelete)
+{
+  if ( toDelete->left && toDelete->right )
+  {
+    Tree* minTree = TreeMin(toDelete->right);
+    toDelete->data = minTree->data;
+    TreeDoDelete(minTree);
+  }
+  else if ( toDelete->left )
+  {
+    toDelete->data = toDelete->left->data;
+    TreeDestroy(toDelete->left);
+  }
+  else if ( toDelete->right )
+  {
+    toDelete->data = toDelete->right->data;
+    TreeDestroy(toDelete->right);
+  }
+  else
+  {
+    if ( toDelete->parent )
+    {
+      if ( toDelete->parent->left == toDelete )
+        toDelete->parent->left = NULL;
+      else if ( toDelete->parent->right == toDelete )
+        toDelete->parent->right = NULL;
+    }
+    TreeDestroy(toDelete);
+  }
+}
+
+int TreeDelete(Tree* tree, void* element, int (*comp)(const void*, const void*))
+{
+  Tree* toDelete = TreeSearch(tree, element, comp);
+  if ( toDelete )
+  {
+    TreeDoDelete(toDelete);
+    return 1;
+  }
+  return 0;
+}
+
 void TreeDestroy(Tree* tree)
 {
   if ( tree->left )
